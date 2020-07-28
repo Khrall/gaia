@@ -4,7 +4,9 @@ import * as express from 'express';
 import { Socket } from 'socket.io';
 import { CronJob, CronTime } from 'cron';
 import { exec } from "child_process";
+import * as pino from 'pino';
 
+const logger = pino();
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
@@ -26,11 +28,11 @@ let state: SystemState = {
 let sockets: Socket[] = [];
 
 io.on('connect', (socket: Socket) => {
-  console.log('client connected');
+  logger.info('client connected');
   sockets.push(socket);
   socket.emit('systemState', state);
   socket.on('setPumpDisabled', (disabled: boolean) => {
-    console.log(`Received "setPumpDisabled" event - target state is ${disabled}`);
+    logger.info(`Received "setPumpDisabled" event - target state is ${disabled}`);
     state.pumpDisabled = disabled;
     if (disabled) {
       stopPump();
@@ -39,23 +41,32 @@ io.on('connect', (socket: Socket) => {
   });
 
   socket.on('setPumpCronJobPattern', (pattern: string) => {
-    console.log(`Received "setPumpCronJobPattern" event - target pattern is ${pattern}`);
+    logger.info(`Received "setPumpCronJobPattern" event - target pattern is ${pattern}`);
+
+    let cronTime: CronTime;
+    try {
+      cronTime = new CronTime(pattern);
+    } catch (error) {
+      logger.info("Invalid pattern provided, not doing anything ...");
+      return;
+    }
+
     state.pumpCronJobPattern = pattern;
-    
     stopPump();
     clearTimeout(stopTimeoutId);
-    cronJob.setTime(new CronTime(pattern));
+    cronJob.setTime(cronTime);
     emitState();
   });
 
   socket.on('setPumpCronJobDurationMilliSeconds', (duration: number) => {
-    console.log(`Received "setPumpCronJobDurationMilliSeconds" event - target duration is ${duration}`);
+    logger.info(`Received "setPumpCronJobDurationMilliSeconds" event - target duration is ${duration}`);
     state.pumpCronJobDurationMilliSeconds = duration;
+    emitState();
   });
 });
 
 const stopPump = () => {
-  console.log("Stopping pump");
+  logger.info("Stopping pump");
   if (process.env.NODE_ENV === "production") {
     exec(`gpio write ${process.env.PUMP_GPIO_PIN} 1`);
   }
@@ -63,7 +74,7 @@ const stopPump = () => {
 }
 
 const startPump = () => {
-  console.log("Starting pump");
+  logger.info("Starting pump");
   if (process.env.NODE_ENV === "production") {
     exec(`gpio write ${process.env.PUMP_GPIO_PIN} 0`);
   }
@@ -87,7 +98,7 @@ const emitState = () => {
     if (currentSocket.connected) {
       currentSocket.emit('systemState', state);
     } else {
-      console.log(`Removing inactive socket with id "${currentSocket.id}"`);
+      logger.info(`Removing inactive socket with id "${currentSocket.id}"`);
       sockets = sockets.filter(socket => socket.id !== currentSocket.id);
     }
   });
@@ -100,5 +111,5 @@ if (process.env.NODE_ENV === "production") {
 stopPump();
 
 server.listen(process.env.PORT, () => {
-  console.log(`listening on *:${process.env.PORT}`);
+  logger.info(`listening on *:${process.env.PORT}`);
 });
