@@ -1,0 +1,30 @@
+.Watering-system {
+
+  > div {
+    margin-bottom: 32px;
+  }
+
+  .toggle {
+    display: flex;
+    
+    .checkbox {
+      margin-left: 32px;
+      position: relative; 
+      top: 4px;
+    }
+  }
+  
+  .input-group {
+    display: flex;
+    flex-direction: column;
+
+    .input {
+      margin-right: 16px;
+    }
+
+    code {
+      font-weight: 700;
+    }
+  }
+
+}
