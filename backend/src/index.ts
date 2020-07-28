@@ -23,11 +23,6 @@ let state: SystemState = {
   pumpCronJobDurationMilliSeconds: 15000
 }
 
-// Initialize GPIO pin
-if (process.env.NODE_ENV === "production") {
-  exec(`gpio mode ${process.env.PUMP_GPIO_PIN} out`);
-}
-
 let sockets: Socket[] = [];
 
 io.on('connect', (socket: Socket) => {
@@ -62,7 +57,7 @@ io.on('connect', (socket: Socket) => {
 const stopPump = () => {
   console.log("Stopping pump");
   if (process.env.NODE_ENV === "production") {
-    exec(`gpio write ${process.env.PUMP_GPIO_PIN} 0`);
+    exec(`gpio write ${process.env.PUMP_GPIO_PIN} 1`);
   }
   state.pumpActive = false;
 }
@@ -70,7 +65,7 @@ const stopPump = () => {
 const startPump = () => {
   console.log("Starting pump");
   if (process.env.NODE_ENV === "production") {
-    exec(`gpio write ${process.env.PUMP_GPIO_PIN} 1`);
+    exec(`gpio write ${process.env.PUMP_GPIO_PIN} 0`);
   }
   state.pumpActive = true;
 }
@@ -97,6 +92,12 @@ const emitState = () => {
     }
   });
 }
+
+// Initialize GPIO pin
+if (process.env.NODE_ENV === "production") {
+  exec(`gpio mode ${process.env.PUMP_GPIO_PIN} out`);
+}
+stopPump();
 
 server.listen(process.env.PORT, () => {
   console.log(`listening on *:${process.env.PORT}`);

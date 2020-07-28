@@ -3,6 +3,7 @@
 ## Development
 
 ```
+npm install -g tsc
 yarn
 cp .sample.env .env
 yarn run watch
@@ -11,11 +12,12 @@ yarn run watch
 ## Production
 
 ```
+npm install -g tsc
 npm install
 cp .sample.env .env
 
 # Modify .env 
 
-npm run tsc
+tsc
 node dist/index.js
 ```
