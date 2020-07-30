@@ -55,6 +55,7 @@ io.on('connect', (socket: Socket) => {
     stopPump();
     clearTimeout(stopTimeoutId);
     cronJob.setTime(cronTime);
+    cronJob.start();
     emitState();
   });
 
@@ -92,6 +93,8 @@ const cronJob = new CronJob(state.pumpCronJobPattern, () => {
     }, state.pumpCronJobDurationMilliSeconds);
   }
 }, null, true, 'Europe/Oslo');
+console.log(cronJob.lastDate());
+console.log(cronJob.nextDate());
 
 const emitState = () => {
   sockets.forEach(currentSocket => {
