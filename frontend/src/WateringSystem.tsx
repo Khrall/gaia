@@ -79,14 +79,14 @@ const WateringSystem = () => {
 
       </div>
 
-      <div className="input-group">
+      <div >
         <Header as="h3">
           Watering Cycle
           </Header>
 
         <p>Current pattern: <code>{systemState.pumpCronJobPattern}</code></p>
 
-        <div>
+        <div className="input-group">
           <Input
             placeholder="Enter pattern"
             value={cronJobPattern}
@@ -101,13 +101,13 @@ const WateringSystem = () => {
         </div>
       </div>
 
-      <div className="input-group">
+      <div>
         <Header as="h3">
           Watering Duration
         </Header>
         <p>{`Current duration: ${systemState.pumpCronJobDurationMilliSeconds} ms`}</p>
 
-        <div>
+        <div className="input-group">
           <Input
             placeholder="Enter duration"
             value={cronJobDurationMilliSeconds}

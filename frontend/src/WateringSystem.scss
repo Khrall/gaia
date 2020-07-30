@@ -8,23 +8,33 @@
     display: flex;
     
     .checkbox {
-      margin-left: 32px;
+      margin-left: 8px;
       position: relative; 
       top: 4px;
+
+      @media screen and (min-width: 500px) {
+        margin-left: 32px;
+      }
     }
+  }
+
+  code {
+    font-weight: 700;
   }
   
   .input-group {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: -8px;
+
+    .input, .button {
+      margin-bottom: 8px;
+    }
 
     .input {
-      margin-right: 16px;
-    }
-
-    code {
-      font-weight: 700;
-    }
+      margin-right: 8px;
+    }    
   }
 
 }
